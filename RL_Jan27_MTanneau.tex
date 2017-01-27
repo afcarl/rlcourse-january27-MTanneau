@@ -1,0 +1,152 @@
+\documentclass{beamer}
+
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{cite}
+\usepackage{algorithm2e}
+\usepackage{caption}
+
+
+\usetheme{Copenhagen}
+\setbeamertemplate{footline}[frame number]
+
+%\newtheorem{definition}[Definition]{Definition}
+
+\AtBeginSection[]{
+  \begin{frame}{}
+  \tableofcontents[currentsection, hideothersubsections]
+  \end{frame} 
+}
+
+\begin{document}
+
+\section{Introduction}
+	\begin{frame}
+		Recall Bellman equation :
+		\[
+		v_{\pi}(s) = \sum_{a} \pi(a|s) \sum_{s',r}p(s'r|s,a)[r+\gamma v_pi(s')]
+		\]
+		or under its matrix form:
+		\[
+			v_{\pi} = r_{\pi} + \gamma P_{\pi} v_{\pi}		
+		\]
+	
+		which leads to the \emph{policy evaluation} algorithm:
+		\[
+		\boxed{\ \ \ 
+			\forall k\geq 1, v_{k} = r_{\pi} + \gamma P_{\pi} v_{k-1}
+		\ \ \ }
+		\]
+		\begin{center}
+		\emph{Our topic: convergence analysis of policy evaluation}
+		\end{center}
+		
+	\end{frame}
+	\begin{frame}
+		Idea:
+		\begin{align*}
+		v_{k} &= r_{\pi} + \gamma P_{\pi} v_{k-1}\\
+		&=r_{\pi} + \gamma P_{\pi} r_{\pi} + \gamma^{2} P_{\pi}^{2} v_{k-1}\\
+		& \vdots \\
+		&= \underbrace{\left(\sum_{i=0}^{k-1} \gamma^{i} P_{\pi}^{i}\right) r_{\pi}}_{\rightarrow (I-\gamma P_{\pi})^{-1}r_{\pi}}  + \underbrace{\gamma^{k} P_{\pi}^{k}v_{0}}_{\rightarrow 0}
+		\end{align*}
+	\end{frame}
+\section{Theory}
+	\subsection{Definitions}
+		\begin{frame}
+		
+			\begin{definition}
+				\begin{itemize}
+					\item $S$ set of possible states
+					\item $V$ the set of real-valued, bounded functions on $S$
+					\[
+						\forall v \in V, \| v \| := \sup_{s \in S} | v(s) |		
+					\]
+					\item $L(V)$ the set of bounded linear transformations on $V$
+					\begin{align*}
+						\forall Q \in L(V), \exists K>0: \forall v \in V, \| Qv \| \leq K \| v \| &	& (Q \ bounded)		
+					\end{align*}
+					\[
+						\forall Q \in L(V), ||| Q ||| := \sup \{ \| Qv \| \ \big| v \in V, \| v \|  \leq 1\}	
+					\]
+				\end{itemize}
+			\end{definition}
+			
+			\begin{theorem}
+				With norms as defined above, \\
+				if $V$ is a Banach space, then $L(V)$, is a Banach space
+			\end{theorem}
+		\end{frame}
+	
+	\subsection{Spectral radius}
+		\begin{frame}
+		
+			\begin{definition}
+				Let $Q \in L(V)$, the \emph{spectral radius} of $Q$, noted $\sigma(Q)$, is:
+				\[
+					\sigma(Q) := \lim_{n\rightarrow +\infty} |||Q^{n}|||^{1/n}		
+				\]
+			\end{definition}
+			
+			For any $Q \in L(V)$, we have $\sigma(Q) \leq ||| Q |||$\\
+			
+			\begin{theorem}[]
+				Let $Q \in L(V)$, with $\sigma(Q)<1$. Then $(I-Q)^{-1}$ exists and:
+				\[
+					(I-Q)^{-1} = \sum_{n=0}^{\infty} Q^{n}
+				\]
+			\end{theorem}
+
+			See Puterman 1994 for proof
+	    \end{frame}
+    
+    \subsection{Convergence analysis}
+    
+	    \begin{frame}
+		    Recall the policy evaluation algorithm:
+		    \begin{align*}
+		    v_{0}&=0\\
+		    v_{k} & = r_{\pi} + \gamma P_{\pi} v_{k-1} \\
+		    & = \left(\sum_{i=0}^{k-1} \gamma^{i} P_{\pi}^{i}\right) r_{\pi}  + \gamma^{k} P_{\pi}^{k}v_{0}
+		    \end{align*}
+		    Hence the algorithm converges and:
+		    \begin{align*}
+			v_{\pi} & = \lim_{k \rightarrow \infty} v_{k}\\
+			 &= (I-\gamma P_{\pi})^{-1} r_{\pi} \\
+			 &= r_{\pi} + \gamma P_{\pi} v_{\pi}		    
+		    \end{align*}
+	    \end{frame}
+	    
+	    \begin{frame}
+	    	\begin{definition}
+		    	Define the error vector at iteration $k$ as: $\epsilon_{k} = v_{k}-v_{\pi}$\\
+		    	Then $\epsilon_{k} = \gamma P_{\pi} \epsilon_{k-1} = \gamma^{k} P_{\pi}^{k} \epsilon_{0}$
+	    	\end{definition}
+	    	
+	    	Note that, since $||| P_{\pi} ||| = 1$, then $\| \epsilon_{k} \| \leq \gamma^{k} \| \epsilon_{0} \|	$
+	    	\begin{definition}[Average rate of convergence]
+		    	Define the average rate of convergence after $k$ iterations:
+		    	\[
+					R_{k} = - \ln \left[ ( |||\gamma^{k} P_{\pi}^{k} ||| )^{1/k} \right]    	
+		    	\]
+	    	\end{definition}
+	    	\begin{theorem}
+	    		Assume $|\gamma| < 1$, then :
+	    		\[
+					\lim_{k} R_{k} = - \ln \left[ \sigma(\gamma P_{\pi}) \right]
+	    		\]
+	    	\end{theorem}
+	    	
+	    \end{frame}
+
+\section{A numerical example}
+	\begin{frame}
+		cf Notebook
+	\end{frame}
+
+
+
+\end{document}
